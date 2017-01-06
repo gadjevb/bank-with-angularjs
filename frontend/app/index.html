@@ -1,15 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html ng-app="bankAppTest">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <title>myBank</title>
+    <base href="/">
 </head>
-<body ng-app="bankApp">
-<div ng-view></div>
+<body>
+
+<div ng-view=""></div>
 
 <script src="bower_components/jquery/dist/jquery.js"></script>
 <script src="bower_components/angular/angular.js"></script>
 <script src="bower_components/angular-resource/angular-resource.js"></script>
 <script src="bower_components/angular-route/angular-route.js"></script>
+<script src="bower_components/angular-mocks/angular-mocks.js"></script>
+<script src="app.test.js"></script>
 <script src="app.js"></script>
 
 </body>

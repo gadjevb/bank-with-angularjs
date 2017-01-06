@@ -1,0 +1,21 @@
+<div class="container" ng-controller="Ctrl">
+    <h2>Personal transactions:</h2>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>User</th>
+            <th>Type</th>
+            <th>Amount</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="transaction in transactions">
+            <td>{{ transaction.date }}</td>
+            <td>{{ transaction.user }}</td>
+            <td>{{ transaction.type }}</td>
+            <td>{{ transaction.amount }}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
