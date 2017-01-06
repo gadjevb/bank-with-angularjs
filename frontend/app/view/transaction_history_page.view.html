@@ -1,21 +1,45 @@
 <div class="container" ng-controller="Ctrl">
-    <h2>Personal transactions:</h2>
-    <table class="table table-hover">
-        <thead>
-        <tr>
-            <th>Date</th>
-            <th>User</th>
-            <th>Type</th>
-            <th>Amount</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr ng-repeat="transaction in transactions">
-            <td>{{ transaction.date }}</td>
-            <td>{{ transaction.user }}</td>
-            <td>{{ transaction.type }}</td>
-            <td>{{ transaction.amount }}</td>
-        </tr>
-        </tbody>
-    </table>
+    <nav class="navbar">
+        <ul class="nav nav-tabs h4">
+            <li class="navbar-left"><a class="text-muted">myBank <span
+                    class="text-muted glyphicon glyphicon-piggy-bank"></span></a></li>
+            <li><a href="account">HOME</a></li>
+            <li><a href="transaction">MAKE A TRANSACTION</a></li>
+            <li class="active"><a>TRANSACTION HISTORY</a></li>
+            <li class="navbar-right"><a href="logout">LOGOUT <span
+                    class="glyphicon glyphicon-off"></span></span></a></li>
+        </ul>
+    </nav>
+    <div class="well well-sm">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>User</th>
+                <th>Type</th>
+                <th>Amount</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="transaction in transactions">
+                <td>{{ transaction.date }}</td>
+                <td>{{ transaction.user }}</td>
+                <td>{{ transaction.type }}</td>
+                <td>{{ transaction.amount }}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="row text-center col-md-4 col-md-offset-4">
+        <form action="/history" method="get">
+            <div class="btn-group btn-group-justified">
+                <div class="btn-group">
+                    <input type="submit" class="btn btn-success" ${back} name="action" value="Back"/>
+                </div>
+                <div class="btn-group">
+                    <input type="submit" class="btn btn-success" ${next} name="action" value="Next"/>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
