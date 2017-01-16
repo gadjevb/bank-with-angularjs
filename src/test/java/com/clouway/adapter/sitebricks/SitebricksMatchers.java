@@ -1,10 +1,13 @@
 package com.clouway.adapter.sitebricks;
 
+import com.clouway.adapter.builder.JsonBuilder;
+import com.google.gson.Gson;
 import com.google.sitebricks.headless.Reply;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
+import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 
@@ -74,4 +77,49 @@ public class SitebricksMatchers {
       }
     };
   }
+
+  public static Matcher<Reply<?>> containsJson(final JsonBuilder content) {
+    return new TypeSafeMatcher<Reply<?>>() {
+      @Override
+      protected boolean matchesSafely(Reply<?> item) {
+        Gson gson = new Gson();
+        Object value = property("entity", item);
+        String jsonContent = gson.toJson(value);
+
+        return jsonContent.equalsIgnoreCase(content.build());
+      }
+
+      @Override
+      public void describeTo(Description description) {
+        description.appendText(content.build());
+      }
+
+      @Override
+      protected void describeMismatchSafely(Reply<?> item, Description mismatchDescription) {
+        String jsonContent = asJsonContent(item);
+        mismatchDescription.appendText("was ");
+        mismatchDescription.appendText(jsonContent);
+      }
+
+      private String asJsonContent(Reply<?> reply) {
+        Gson gson = new Gson();
+        Object value = property("entity", reply);
+        String jsonContent = gson.toJson(value);
+
+        return jsonContent;
+      }
+
+      private Object property(String fieldName, Reply<?> reply) {
+        try {
+          Field field = reply.getClass().getDeclaredField(fieldName);
+          field.setAccessible(true);
+          return field.get(reply);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+          throw new IllegalStateException("Reply has no entity information");
+        }
+      }
+    };
+  }
+
+
 }
