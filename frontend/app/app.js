@@ -5,7 +5,7 @@ app.config(function($routeProvider, $locationProvider) {
     .when('/', {
       templateUrl: 'view/index_page.view.html'
     })
-    .when('/history', {
+    .when('/v1/transaction', {
       templateUrl: 'view/transaction_history_page.view.html'
     })
     .otherwise({

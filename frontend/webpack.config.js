@@ -4,6 +4,7 @@ var path = require('path')
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
+  watch: true,
   context: __dirname,
   entry: {
     app: './index.js',
@@ -14,7 +15,7 @@ module.exports = {
     ]
   },
   output: {
-    path: __dirname + '/build/assets',
+    path: __dirname + '/build/assets/',
     filename: 'bank.bundle.js',
     publicPath: "./assets/"
   },
@@ -56,6 +57,11 @@ module.exports = {
       $: "jquery",
       jQuery: "jquery"
     }),
-    new webpack.optimize.CommonsChunkPlugin(/* chunkName= */"vendor", /* filename= */"vendor.bundle.js")
-  ]
+    new webpack.optimize.CommonsChunkPlugin(/* chunkName= */"vendor", /* filename= */"vendor.bundle.js"),
+    new webpack.HotModuleReplacementPlugin()
+  ],
+  devServer: {
+    hot: true,
+    inline: true
+  }
 };
