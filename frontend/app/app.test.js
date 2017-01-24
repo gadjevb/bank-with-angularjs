@@ -5,20 +5,20 @@ app.run(function($httpBackend) {
 
     var transactions = [
         {
+            id: 1,
             date: '1.1.2017',
-            user: 'testUser',
             type: 'Deposit',
             amount: '500'
         },
         {
+            id: 2,
             date: '1.1.2017',
-            user: 'testUser',
             type: 'Withdraw',
             amount: '420'
         },
         {
+            id: 3,
             date: '1.1.2017',
-            user: 'testUser',
             type: 'Deposit',
             amount: '250'
         }

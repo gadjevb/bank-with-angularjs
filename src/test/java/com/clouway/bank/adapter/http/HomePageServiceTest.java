@@ -32,7 +32,7 @@ public class HomePageServiceTest {
 
   @Test
   public void happyPath() {
-    final Optional<Account> possibleAccount = Optional.of(new Account("id", "A", 1d));
+    final Optional<Account> possibleAccount = Optional.of(new Account("cursor", "A", 1d));
 
     context.checking(new Expectations() {{
       oneOf(userSecurity).currentUser();

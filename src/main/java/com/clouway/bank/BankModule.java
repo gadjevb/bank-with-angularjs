@@ -9,6 +9,8 @@ import com.clouway.bank.adapter.persistence.PersistentAccountRepository;
 import com.clouway.bank.adapter.persistence.PersistentSessionRepository;
 import com.clouway.bank.core.AccountRepository;
 import com.clouway.bank.core.SessionRepository;
+import com.clouway.bank.adapter.persistence.PersistentTransactionRepository;
+import com.clouway.bank.core.TransactionRepository;
 import com.clouway.bank.core.User;
 import com.clouway.bank.core.UserAuthentication;
 import com.clouway.bank.core.UserSecurity;
@@ -88,6 +90,7 @@ public class BankModule extends SitebricksModule {
         return Optional.empty();
       }
     });
+    bind(TransactionRepository.class).to(PersistentTransactionRepository.class);
   }
 
   @Provides

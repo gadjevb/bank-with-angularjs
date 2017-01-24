@@ -2,10 +2,16 @@ package com.clouway.bank.adapter.persistence;
 
 import com.clouway.bank.matchers.DatastoreRule;
 import com.clouway.bank.core.Account;
+import com.clouway.bank.core.Transaction;
+import com.clouway.bank.core.TransactionRepository;
+import org.jmock.Expectations;
+import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.sql.Date;
+import java.time.Instant;
 import java.util.Optional;
 
 import static junit.framework.TestCase.assertTrue;
@@ -19,12 +25,15 @@ public class PersistentAccountRepositoryTest {
 
   @Rule
   public DatastoreRule datastoreRule = new DatastoreRule();
+  public JUnitRuleMockery context = new JUnitRuleMockery();
+
+  private TransactionRepository transactionRepository = context.mock(TransactionRepository.class);
 
   private PersistentAccountRepository accountRepository;
 
   @Before
   public void setUp() {
-    accountRepository = new PersistentAccountRepository(datastoreRule.getDatabase());
+     accountRepository = new PersistentAccountRepository(datastoreRule.getDatabase(), transactionRepository);
   }
 
   @Test
@@ -45,7 +54,14 @@ public class PersistentAccountRepositoryTest {
   @Test
   public void updateAccountBalance() throws Exception {
     Account account = accountRepository.register("A", 10d);
-    accountRepository.update(account.id, 5d);
+
+    context.checking(new Expectations() {{
+      oneOf(transactionRepository).registerTransaction(
+              with(any(Transaction.class)));
+    }});
+
+    accountRepository.update(account.id, 5d, "withdraw", "5");
+
     Double balance = accountRepository.findUserAccount(account.id).get().balance;
     assertThat(balance, is(5d));
   }

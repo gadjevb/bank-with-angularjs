@@ -1,10 +1,7 @@
 package com.clouway.bank.adapter.http;
 
 import com.clouway.bank.adapter.http.OperationsService.Operation;
-import com.clouway.bank.core.Account;
-import com.clouway.bank.core.AccountRepository;
-import com.clouway.bank.core.User;
-import com.clouway.bank.core.UserSecurity;
+import com.clouway.bank.core.*;
 import com.google.sitebricks.headless.Reply;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -27,14 +24,15 @@ public class OperationsServiceTest {
 
   private AccountRepository accountRepository = context.mock(AccountRepository.class);
   private UserSecurity userSecurity = context.mock(UserSecurity.class);
+  private TransactionRepository transactionRepository = context.mock(TransactionRepository.class);
 
-  private OperationsService homePageService = new OperationsService(accountRepository, userSecurity);
+  private OperationsService homePageService = new OperationsService(accountRepository, transactionRepository, userSecurity);
 
 
   @Test
   public void happyPath() throws Exception {
     final Operation operation = new Operation("0", "deposit");
-    final Optional<Account> possibleAccount = Optional.of(new Account("id", "A", 1d));
+    final Optional<Account> possibleAccount = Optional.of(new Account("cursor", "A", 1d));
     FakeRequest request = new FakeRequest(operation);
 
     context.checking(new Expectations() {{
@@ -42,7 +40,7 @@ public class OperationsServiceTest {
       will(returnValue(new User("::any user id::", "", "")));
       oneOf(accountRepository).findUserAccount("::any user id::");
       will(returnValue(possibleAccount));
-      oneOf(accountRepository).update("id", 1.0);
+      oneOf(accountRepository).update("cursor", 1.0, "deposit", "0");
     }});
 
     Reply<?> reply = homePageService.issueOperation(request);
@@ -59,8 +57,8 @@ public class OperationsServiceTest {
       oneOf(userSecurity).currentUser();
       will(returnValue(new User("::any user id::", "name", "password")));
       oneOf(accountRepository).findUserAccount("::any user id::");
-      will(returnValue(Optional.of(new Account("::any user id::", "A", 1d))));
-      oneOf(accountRepository).update("::any user id::", 2.0);
+      will(returnValue(Optional.of(new Account("id", "A", 1d))));
+      oneOf(accountRepository).update("id", 2.0, "deposit", "1");
     }});
 
     Reply<?> reply = homePageService.issueOperation(request);
@@ -78,7 +76,7 @@ public class OperationsServiceTest {
       will(returnValue(new User("::any user id::", "name", "password")));
       oneOf(accountRepository).findUserAccount("::any user id::");
       will(returnValue(Optional.of(new Account("::any account id::", "A", 1d))));
-      oneOf(accountRepository).update("::any account id::", 0.0);
+      oneOf(accountRepository).update("::any account id::", 0.0, "withdraw", "1");
     }});
 
     Reply<?> reply = homePageService.issueOperation(request);

@@ -24,11 +24,11 @@ describe('TransactionsHistoryCtrl', function () {
     $controller('TransactionsHistoryCtrl', {$scope: $scope, $http: $http});
 
     $httpBackend
-            .expect('GET', '/v1/transactions')
+            .expect('GET', '/v1/transactions?isNext=false&startingFromCursor=')
             .respond(200, {foo: 'bar'});
     $httpBackend.flush();
 
-    expect($scope.transactions).toEqual({foo: 'bar'});
+    expect($scope.records).toEqual({foo: 'bar'});
   }));
 
   it('Should load another transaction history', inject(function ($http) {
@@ -36,13 +36,86 @@ describe('TransactionsHistoryCtrl', function () {
     $controller('TransactionsHistoryCtrl', {$scope: $scope, $http: $http});
 
     $httpBackend
-            .expect('GET', '/v1/transactions')
+            .expect('GET', '/v1/transactions?isNext=false&startingFromCursor=')
             .respond(200, [1, 2, 3]);
     $httpBackend.flush();
 
-    expect($scope.transactions).toEqual([1, 2, 3]);
+    expect($scope.records).toEqual([1, 2, 3]);
   }));
 
+  it('Should receive next page', inject(function ($http) {
+     var $scope = {};
+     $controller('TransactionsHistoryCtrl', {$scope: $scope, $http: $http});
+
+     $scope.records = [{cursor: '25dfs'}, {cursor: '25dfs'}];
+
+     $httpBackend
+             .expect('GET', '/v1/transactions?isNext=false&startingFromCursor=')
+             .respond(200, [{cursor: '25dfs'}, {cursor: '25dfs'}]);
+     $httpBackend
+             .expect('GET' ,'/v1/transactions?isNext=true&startingFromCursor=25dfs')
+             .respond(200, [{cursor: '34dfs'}, {cursor: '34dfs'}]);
+     $scope.goNext();
+
+     $httpBackend.flush();
+
+     expect($scope.records).toEqual([{cursor: '34dfs'}, {cursor: '34dfs'}]);
+     expect($scope.status.back).toEqual(false);
+     expect($scope.status.next).toEqual(false);
+     expect($scope.pageCounter).toEqual(1);
+  }));
+
+  it('Should go back to previous page', inject(function ($http) {
+     var $scope = {};
+     $controller('TransactionsHistoryCtrl', {$scope: $scope, $http: $http});
+
+     $scope.records = [{cursor: '34dfs'}, {cursor: '34dfs'}];
+
+     $httpBackend
+             .expect('GET', '/v1/transactions?isNext=false&startingFromCursor=')
+             .respond(200, [{cursor: '25dfs'}, {cursor: '25dfs'}]);
+     $httpBackend
+             .expect('GET' ,'/v1/transactions?isNext=true&startingFromCursor=34dfs')
+             .respond(200, [{cursor: '34dfs'}, {cursor: '34dfs'}]);
+     $httpBackend
+             .expect('GET', '/v1/transactions?isNext=false&startingFromCursor=34dfs')
+             .respond(200, [{cursor: '25dfs'}, {cursor: '25dfs'}]);
+     $scope.goNext();
+     $scope.goBack();
+
+     $httpBackend.flush();
+
+     expect($scope.records).toEqual([{cursor: '25dfs'}, {cursor: '25dfs'}]);
+     expect($scope.status.back).toEqual(true);
+     expect($scope.status.next).toEqual(false);
+     expect($scope.pageCounter).toEqual(0);
+  }));
+
+  it('Should not go forward when there is no next page', inject(function ($http) {
+     var $scope = {};
+     $controller('TransactionsHistoryCtrl', {$scope: $scope, $http: $http});
+
+     $scope.records = [{cursor: '25dfs'}, {cursor: '25dfs'}];
+
+     $httpBackend
+             .expect('GET', '/v1/transactions?isNext=false&startingFromCursor=')
+             .respond(200, [{cursor: '25dfs'}, {cursor: '25dfs'}]);
+     $httpBackend
+             .expect('GET' ,'/v1/transactions?isNext=true&startingFromCursor=25dfs')
+             .respond(200, [{cursor: '34dfs'}, {cursor: '34dfs'}]);
+     $httpBackend
+             .expect('GET' ,'/v1/transactions?isNext=true&startingFromCursor=25dfs')
+             .respond(200, []);
+     $scope.goNext();
+     $scope.goNext();
+
+     $httpBackend.flush();
+
+     expect($scope.records).toEqual([{cursor: '34dfs'}, {cursor: '34dfs'}]);
+     expect($scope.status.back).toEqual(false);
+     expect($scope.status.next).toEqual(true);
+     expect($scope.pageCounter).toEqual(1);
+  }));
 });
 
 describe('HomePageCtrl', function () {

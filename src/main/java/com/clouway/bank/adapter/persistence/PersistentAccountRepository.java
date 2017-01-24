@@ -2,6 +2,8 @@ package com.clouway.bank.adapter.persistence;
 
 import com.clouway.bank.core.Account;
 import com.clouway.bank.core.AccountRepository;
+import com.clouway.bank.core.Transaction;
+import com.clouway.bank.core.TransactionRepository;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.mongodb.client.MongoCollection;
@@ -10,6 +12,8 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
+import java.sql.Date;
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -17,10 +21,12 @@ import java.util.Optional;
  */
 public class PersistentAccountRepository implements AccountRepository {
   private final Provider<MongoDatabase> db;
+  private final TransactionRepository transactionRepository;
 
   @Inject
-  public PersistentAccountRepository(Provider<MongoDatabase> db) {
+  public PersistentAccountRepository(Provider<MongoDatabase> db, TransactionRepository transactionRepository) {
     this.db = db;
+    this.transactionRepository = transactionRepository;
   }
 
   @Override
@@ -47,7 +53,15 @@ public class PersistentAccountRepository implements AccountRepository {
   }
 
   @Override
-  public void update(String id, Double amount) {
+  public void update(String id, Double amount, String operationType, String operationAmount) {
+    transactionRepository.registerTransaction(new Transaction(
+            null,
+            Date.from(Instant.now()),
+            id,
+            operationType,
+            Double.valueOf(operationAmount)
+    ));
+
     accounts().
             findOneAndUpdate(new Document("_id", new ObjectId(id)), new Document("$set", new Document("balance", amount)));
   }

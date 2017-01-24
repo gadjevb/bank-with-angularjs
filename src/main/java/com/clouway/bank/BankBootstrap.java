@@ -1,12 +1,15 @@
 package com.clouway.bank;
 
+import com.clouway.bank.adapter.persistence.PersistentTransactionRepository;
 import com.clouway.bank.core.Account;
 import com.clouway.bank.adapter.persistence.PersistentAccountRepository;
+import com.google.inject.Provider;
 import com.google.inject.util.Providers;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoException;
 import com.mongodb.ServerAddress;
+import com.mongodb.client.MongoDatabase;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,7 +44,7 @@ public class BankBootstrap {
 
     MongoClient client = null;
 
-    boolean successfullyConnnected = false;
+    boolean successfullyConnected = false;
 
     for (int attempt = 1; attempt <= 10; attempt++) {
       try {
@@ -51,7 +54,7 @@ public class BankBootstrap {
 
         System.out.printf("got connected to %s\n", serverAddressList);
 
-        successfullyConnnected = true;
+        successfullyConnected = true;
 
         break;
       } catch (MongoException e) {
@@ -60,12 +63,14 @@ public class BankBootstrap {
       }
 
     }
-    if (!successfullyConnnected) {
+    if (!successfullyConnected) {
       System.out.println("unable to connect to the database.");
       System.exit(-1);
     }
 
-    PersistentAccountRepository accountRepository = new PersistentAccountRepository(Providers.of(client.getDatabase("bankApp")));
+    Provider<MongoDatabase> db = Providers.of(client.getDatabase("bankApp"));
+    PersistentTransactionRepository transactionRepository = new PersistentTransactionRepository(db);
+    PersistentAccountRepository accountRepository = new PersistentAccountRepository(db, transactionRepository);
     Account account = accountRepository.register("Gosho", 24d);
 
     Jetty jetty = new Jetty(httpPort, client, account.id);

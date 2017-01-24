@@ -1,9 +1,6 @@
 package com.clouway.bank.adapter.http;
 
-import com.clouway.bank.core.Account;
-import com.clouway.bank.core.AccountRepository;
-import com.clouway.bank.core.User;
-import com.clouway.bank.core.UserSecurity;
+import com.clouway.bank.core.*;
 import com.google.inject.Inject;
 import com.google.sitebricks.At;
 import com.google.sitebricks.headless.Reply;
@@ -20,18 +17,20 @@ import java.util.Optional;
 @At("/v1/operation")
 public class OperationsService {
   private final AccountRepository accountRepository;
+  private final TransactionRepository transactionRepository;
   private UserSecurity userSecurity;
 
   @Inject
-  public OperationsService(AccountRepository accountRepository, UserSecurity userSecurity) {
+  public OperationsService(AccountRepository accountRepository, TransactionRepository transactionRepository, UserSecurity userSecurity) {
     this.accountRepository = accountRepository;
+    this.transactionRepository = transactionRepository;
     this.userSecurity = userSecurity;
   }
 
   @Post
   public Reply<?> issueOperation(Request request) {
     Operation operation = request.read(Operation.class).as(Json.class);
-    // Logged user ...
+    // Logged username ...
     User user = userSecurity.currentUser();
 
     Optional<Account> possibleAccount = accountRepository.findUserAccount(user.userId);
@@ -46,17 +45,16 @@ public class OperationsService {
     if (account.balance < requestedAmount && operation.type.equals("withdraw")) {
       return Reply.saying().badRequest();
     }
-
     switch (operation.type) {
       case "deposit":
-        newBalance = account.balance + requestedAmount;
+        newBalance = account.balance + Double.valueOf(operation.amount);
+        accountRepository.update(account.id, newBalance, operation.type, operation.amount);
         break;
       case "withdraw":
-        newBalance = account.balance - requestedAmount;
+        newBalance = account.balance - Double.valueOf(operation.amount);
+        accountRepository.update(account.id, newBalance, operation.type, operation.amount);
         break;
     }
-    accountRepository.update(account.id, newBalance);
-
     return Reply.with(new DepositResult(newBalance)).as(Json.class);
   }
 

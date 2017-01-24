@@ -2,6 +2,7 @@ var app = angular.module('bankApp', ['ngRoute']);
 
 app.config(function ($routeProvider, $locationProvider) {
   $routeProvider
+
           .when('/', {
             templateUrl: 'view/index_page.view.html'
           })
@@ -15,24 +16,53 @@ app.config(function ($routeProvider, $locationProvider) {
   $locationProvider.html5Mode(true);
 });
 
-app.controller('TransactionsHistoryCtrl', function ($scope, $http) {
-  // an empty list of transactions should be displayed 
-  // before loading of the history
-  $scope.transactions = [];
-  $http.get("/v1/transactions")
-          .then(function (response) {
-            $scope.transactions = response.data;
-          });
+app.controller('TransactionsHistoryCtrl', function($scope, $http) {
+  $scope.pageCounter = 0;
+  $scope.status = {next: false, back: false};
+  $scope.records = [];
+
+  $http.get("/v1/transactions", {params: {startingFromCursor: '', isNext: false}})
+  .then(function(response) {
+    $scope.records = response.data;
+    $scope.status.back = true;
+    $scope.pageCounter = 0;
+  });
+
+  $scope.goBack = function() {
+    $http.get("/v1/transactions", {params: {startingFromCursor: $scope.records[0].cursor, isNext: false}})
+      .then(function(response) {
+        $scope.records = response.data;
+        $scope.pageCounter--;
+        $scope.status.next = false;
+
+        if ($scope.pageCounter == 0) {
+            $scope.status.back = true;
+        }
+    });
+  }
+
+  $scope.goNext = function() {
+    $http.get("/v1/transactions", {params: {startingFromCursor: $scope.records[$scope.records.length - 1].cursor, isNext: true}})
+      .then(function(response) {
+        if (response.data[0] == undefined) {
+          $scope.status.next = true;
+        } else {
+          $scope.records = response.data;
+          $scope.pageCounter++;
+          $scope.status.back = false;
+        }
+    });
+  }
 });
 
-app.controller('HomePageCtrl', function ($scope, $http) {
+app.controller('HomePageCtrl', function($scope, $http) {
   $scope.account = {};
   $scope.operation = {type: "deposit"};
 
   $http.get("/v1/useraccount")
-          .then(function (response) {
-            $scope.account = response.data;
-          });
+    .then(function(response) {
+      $scope.account = response.data;
+  });
 
   $scope.executeOperation = function (operation) {
     $scope.message = {};
