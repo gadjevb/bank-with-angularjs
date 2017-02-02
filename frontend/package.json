@@ -37,6 +37,8 @@
   "author": "clouway",
   "license": "BSD",
   "dependencies": {
-    "express": "^4.14.0"
+    "css-loader": "^0.26.1",
+    "express": "^4.14.0",
+    "style-loader": "^0.13.1"
   }
 }
