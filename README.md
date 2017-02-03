@@ -20,3 +20,10 @@ $ npm test
 npm run build:dev
 npm run build:production
 ```
+
+**Required**
+```sh
+java 8
+node -v 6.9.5
+npm -v 3.10.10
+```
