@@ -1,6 +1,7 @@
 package com.clouway.bank.adapter.persistence;
 
 import com.clouway.bank.core.SessionRepository;
+import com.clouway.bank.core.User;
 import com.google.common.io.BaseEncoding;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -65,5 +66,21 @@ public class PersistentSessionRepository implements SessionRepository {
     Date expTime = new Date(now.getTime() - (durationInMinutes * 6000));
     db.get().getCollection("sessions")
             .deleteMany(new Document("createdOn", new Document("$lte", expTime)));
+  }
+
+  @Override
+  public Boolean terminateUserSession(User currentUser) {
+    db.get().getCollection("sessions").deleteOne(
+            new Document("sessionOwner", currentUser.name)
+    );
+
+    Document document = db.get().getCollection("sessions")
+            .find(new Document("sessionOwner", currentUser.name)).first();
+
+    if (document == null) {
+        return true;
+    } else {
+        return false;
+    }
   }
 }

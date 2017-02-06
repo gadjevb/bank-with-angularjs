@@ -80,3 +80,11 @@ app.controller('HomePageCtrl', function($scope, $http) {
   };
 });
 
+app.controller('LogoutCtrl', function ($scope, $http) {
+
+  $scope.logout = function() {
+    $http.get("/logout").then( function (response) {
+      window.location = '/login';
+    });
+  }
+});

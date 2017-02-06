@@ -47,19 +47,19 @@ describe('TransactionsHistoryCtrl', function () {
      var $scope = {};
      $controller('TransactionsHistoryCtrl', {$scope: $scope, $http: $http});
 
-     $scope.records = [{cursor: '25dfs'}, {cursor: '25dfs'}];
+     $scope.records = [{id: '25dfs'}, {id: '25dfs'}];
 
      $httpBackend
              .expect('GET', '/v1/transactions?isNext=false&startingFromCursor=')
-             .respond(200, [{cursor: '25dfs'}, {cursor: '25dfs'}]);
+             .respond(200, [{id: '25dfs'}, {id: '25dfs'}]);
      $httpBackend
              .expect('GET' ,'/v1/transactions?isNext=true&startingFromCursor=25dfs')
-             .respond(200, [{cursor: '34dfs'}, {cursor: '34dfs'}]);
+             .respond(200, [{id: '34dfs'}, {id: '34dfs'}]);
      $scope.goNext();
 
      $httpBackend.flush();
 
-     expect($scope.records).toEqual([{cursor: '34dfs'}, {cursor: '34dfs'}]);
+     expect($scope.records).toEqual([{id: '34dfs'}, {id: '34dfs'}]);
      expect($scope.status.back).toEqual(false);
      expect($scope.status.next).toEqual(false);
      expect($scope.pageCounter).toEqual(1);
@@ -69,23 +69,23 @@ describe('TransactionsHistoryCtrl', function () {
      var $scope = {};
      $controller('TransactionsHistoryCtrl', {$scope: $scope, $http: $http});
 
-     $scope.records = [{cursor: '34dfs'}, {cursor: '34dfs'}];
+     $scope.records = [{id: '34dfs'}, {id: '34dfs'}];
 
      $httpBackend
              .expect('GET', '/v1/transactions?isNext=false&startingFromCursor=')
-             .respond(200, [{cursor: '25dfs'}, {cursor: '25dfs'}]);
+             .respond(200, [{id: '25dfs'}, {id: '25dfs'}]);
      $httpBackend
              .expect('GET' ,'/v1/transactions?isNext=true&startingFromCursor=34dfs')
-             .respond(200, [{cursor: '34dfs'}, {cursor: '34dfs'}]);
+             .respond(200, [{id: '34dfs'}, {id: '34dfs'}]);
      $httpBackend
              .expect('GET', '/v1/transactions?isNext=false&startingFromCursor=34dfs')
-             .respond(200, [{cursor: '25dfs'}, {cursor: '25dfs'}]);
+             .respond(200, [{id: '25dfs'}, {id: '25dfs'}]);
      $scope.goNext();
      $scope.goBack();
 
      $httpBackend.flush();
 
-     expect($scope.records).toEqual([{cursor: '25dfs'}, {cursor: '25dfs'}]);
+     expect($scope.records).toEqual([{id: '25dfs'}, {id: '25dfs'}]);
      expect($scope.status.back).toEqual(true);
      expect($scope.status.next).toEqual(false);
      expect($scope.pageCounter).toEqual(0);
@@ -95,14 +95,14 @@ describe('TransactionsHistoryCtrl', function () {
      var $scope = {};
      $controller('TransactionsHistoryCtrl', {$scope: $scope, $http: $http});
 
-     $scope.records = [{cursor: '25dfs'}, {cursor: '25dfs'}];
+     $scope.records = [{id: '25dfs'}, {id: '25dfs'}];
 
      $httpBackend
              .expect('GET', '/v1/transactions?isNext=false&startingFromCursor=')
-             .respond(200, [{cursor: '25dfs'}, {cursor: '25dfs'}]);
+             .respond(200, [{id: '25dfs'}, {id: '25dfs'}]);
      $httpBackend
              .expect('GET' ,'/v1/transactions?isNext=true&startingFromCursor=25dfs')
-             .respond(200, [{cursor: '34dfs'}, {cursor: '34dfs'}]);
+             .respond(200, [{id: '34dfs'}, {id: '34dfs'}]);
      $httpBackend
              .expect('GET' ,'/v1/transactions?isNext=true&startingFromCursor=25dfs')
              .respond(200, []);
@@ -111,7 +111,7 @@ describe('TransactionsHistoryCtrl', function () {
 
      $httpBackend.flush();
 
-     expect($scope.records).toEqual([{cursor: '34dfs'}, {cursor: '34dfs'}]);
+     expect($scope.records).toEqual([{id: '34dfs'}, {id: '34dfs'}]);
      expect($scope.status.back).toEqual(false);
      expect($scope.status.next).toEqual(true);
      expect($scope.pageCounter).toEqual(1);
@@ -221,5 +221,29 @@ describe('HomePageCtrl', function () {
     $httpBackend.flush();
 
     expect($scope.message.error).toEqual("Insufficient amount in your account: ");
+  }));
+});
+
+describe('LogoutCtrl', function () {
+  beforeEach(angular.mock.module('bankApp'));
+  var $controller;
+  var $httpBackend;
+
+  beforeEach(inject(function (_$controller_, _$httpBackend_) {
+    $controller = _$controller_;
+    $httpBackend = _$httpBackend_;
+  }));
+
+  it('Should logout user', inject(function ($http) {
+    var $scope = {};
+    $controller('LogoutCtrl', {$scope: $scope, $http: $http});
+
+    $httpBackend
+            .expect('GET', '/logout')
+            .respond(200);
+
+    $scope.logout();
+
+    $httpBackend.flush();
   }));
 });

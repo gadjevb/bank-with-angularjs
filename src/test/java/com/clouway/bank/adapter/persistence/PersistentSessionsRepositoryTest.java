@@ -1,5 +1,6 @@
 package com.clouway.bank.adapter.persistence;
 
+import com.clouway.bank.core.User;
 import com.clouway.bank.matchers.DatastoreRule;
 import com.clouway.bank.core.Session;
 import org.junit.Before;
@@ -80,5 +81,16 @@ public class PersistentSessionsRepositoryTest {
 
     assertThat(possibleFs.isPresent(), is(false));
     assertThat(possibleSs.isPresent(), is(false));
+  }
+
+  @Test
+  public void terminateUserSession() {
+    Session session = sessions.startSession(LocalDateTime.of(2017, 1, 30, 9, 0), "Borislav");
+
+    sessions.terminateUserSession(new User("123", "Borislav", "123456"));
+
+    Optional<Session> possibleSession = sessions.findSessionAvailableAt(session.id(), LocalDateTime.of(2017, 1, 30, 9, 0));
+
+    assertThat(possibleSession.isPresent(), is(false));
   }
 }

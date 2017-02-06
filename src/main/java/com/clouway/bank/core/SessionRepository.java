@@ -13,4 +13,6 @@ public interface SessionRepository {
   Optional<Session> findSessionAvailableAt(String sessionId, LocalDateTime instant);
 
   void clearExpiredSessions(LocalDateTime instant);
+
+  Boolean terminateUserSession(User currentUser);
 }

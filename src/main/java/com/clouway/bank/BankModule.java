@@ -1,12 +1,6 @@
 package com.clouway.bank;
 
-import com.clouway.bank.adapter.http.HomePageService;
-import com.clouway.bank.adapter.http.LoginPage;
-import com.clouway.bank.adapter.http.OperationsService;
-import com.clouway.bank.adapter.http.RegisterPage;
-import com.clouway.bank.adapter.http.SecurityFilter;
-import com.clouway.bank.adapter.http.TransactionHistoryService;
-import com.clouway.bank.adapter.http.UserSecurityImpl;
+import com.clouway.bank.adapter.http.*;
 import com.clouway.bank.adapter.persistence.PersistentAccountRepository;
 import com.clouway.bank.adapter.persistence.PersistentSessionRepository;
 import com.clouway.bank.adapter.persistence.PersistentTransactionRepository;
@@ -70,6 +64,7 @@ public class BankModule extends SitebricksModule {
     at("/v1/useraccount").serve(HomePageService.class);
     at("/v1/operation").serve(OperationsService.class);
     at("/v1/transactions").serve(TransactionHistoryService.class);
+    at("/logout").serve(LogoutService.class);
 
     bind(UserSecurity.class).to(UserSecurityImpl.class);
     bind(UserRepository.class).to(PersistentAccountRepository.class);
