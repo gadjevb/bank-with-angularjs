@@ -12,4 +12,6 @@ public interface AccountRepository {
   void update(String id, Double amount, String operationType, String operationAmount);
 
   void updatePassword(String id, String password);
+
+  Optional<User> findByUserName(String from);
 }

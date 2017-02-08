@@ -27,6 +27,9 @@ app.run(function($httpBackend) {
   $httpBackend.whenGET('/v1/transactions?isNext=false&startingFromCursor=').respond(transactions);
   $httpBackend.whenGET(regPath).passThrough();
   $httpBackend.whenGET('/v1/useraccount').respond({id: "123445", name: "John", balance: 23});
+  $httpBackend.whenGET('/v1/transfer').respond({id: "123445", name: "John", balance: 23});
+  //$httpBackend.whenPOST('/v1/transfer').respond(200, {balance: 11});
+  $httpBackend.whenPOST('/v1/transfer').respond(400);
   $httpBackend.whenPOST('/v1/useraccount/changePassword').respond(200);
   $httpBackend.whenGET('/logout').respond(200);
   // $httpBackend.whenGET('/v1/useraccount').respond(401, '');

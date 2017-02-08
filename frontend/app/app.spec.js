@@ -6,6 +6,7 @@ describe('Routing', function () {
       expect($route.routes['/'].templateUrl).toEqual('view/index_page.view.html');
       expect($route.routes['/history'].templateUrl).toEqual('view/transaction_history_page.view.html');
       expect($route.routes['/passchange'].templateUrl).toEqual('view/password_change_page.view.html');
+      expect($route.routes['/transfer'].templateUrl).toEqual('view/user2user_transaction_page.view.html');
       expect($route.routes[null].redirectTo).toEqual('/');
     });
   });
@@ -300,5 +301,81 @@ describe('ChangePasswordCtrl', function () {
 
     expect($scope.message.success).toEqual("");
     expect($scope.message.failure).toEqual("New password doesn't match the one in the validation field!!!");
+  }));
+});
+
+describe('User2UserTransferPageCtrl', function () {
+  beforeEach(angular.mock.module('bankApp'));
+    var $controller;
+    var $httpBackend;
+
+  beforeEach(inject(function (_$controller_, _$httpBackend_) {
+    $controller = _$controller_;
+    $httpBackend = _$httpBackend_;
+  }));
+
+  it('Should respond with current user', inject(function ($http) {
+    var $scope = {};
+    $controller('User2UserTransferPageCtrl', {$scope: $scope, $http: $http});
+
+    $httpBackend
+            .expect('GET', '/v1/transfer')
+            .respond(200, {id: "123445", name: "John", balance: 23});
+
+    $httpBackend.flush();
+
+    expect($scope.account.id).toEqual("123445");
+    expect($scope.account.name).toEqual("John");
+    expect($scope.account.balance).toEqual(23);
+  }));
+
+  it('Should make transfer', inject(function ($http) {
+    var $scope = {};
+    $controller('User2UserTransferPageCtrl', {$scope: $scope, $http: $http});
+
+    $httpBackend
+            .expect('GET', '/v1/transfer')
+            .respond(200, {id: "123445", name: "John", balance: 23});
+
+    $httpBackend
+            .expect('POST', '/v1/transfer')
+            .respond(200, {balance: 13});
+
+    $scope.executeTransfer("Bob", 10);
+
+    $httpBackend.flush();
+
+    expect($scope.account.id).toEqual("123445");
+    expect($scope.account.name).toEqual("John");
+    expect($scope.account.balance).toEqual(13);
+    expect($scope.message.success).toEqual("Successful transfer to Bob");
+    expect($scope.message.failure).toEqual("");
+    expect($scope.query.to).toEqual("Bob");
+    expect($scope.query.amount).toEqual(10);
+  }));
+
+  it('Should not make transfer', inject(function ($http) {
+    var $scope = {};
+    $controller('User2UserTransferPageCtrl', {$scope: $scope, $http: $http});
+
+    $httpBackend
+            .expect('GET', '/v1/transfer')
+            .respond(200, {id: "123445", name: "John", balance: 23});
+
+    $httpBackend
+            .expect('POST', '/v1/transfer')
+            .respond(400);
+
+    $scope.executeTransfer("Bob", 10);
+
+    $httpBackend.flush();
+
+    expect($scope.account.id).toEqual("123445");
+    expect($scope.account.name).toEqual("John");
+    expect($scope.account.balance).toEqual(23);
+    expect($scope.message.success).toEqual("");
+    expect($scope.message.failure).toEqual("Unsuccessful transfer to Bob");
+    expect($scope.query.to).toEqual("Bob");
+    expect($scope.query.amount).toEqual(10);
   }));
 });
