@@ -12,6 +12,9 @@ app.config(function ($routeProvider, $locationProvider, $httpProvider) {
           .when('/passchange', {
             templateUrl: 'view/password_change_page.view.html'
           })
+          .when('/transfer', {
+            templateUrl: 'view/user2user_transaction_page.view.html'
+          })
           .otherwise({
             redirectTo: '/'
           });
@@ -129,6 +132,37 @@ app.controller('ChangePasswordCtrl', function ($scope, $http) {
       $scope.message.failure = "New password doesn't match the one in the validation field!!!";
       $scope.message.success = "";
     }
+
+  }
+
+});
+
+app.controller('User2UserTransferPageCtrl', function ($scope, $http) {
+  $scope.message = {};
+  $scope.account = {};
+
+  $scope.message.success = "";
+  $scope.message.failure = "";
+
+  $http.get("/v1/transfer")
+    .then(function(response) {
+      $scope.account = response.data;
+  });
+
+  $scope.executeTransfer = function(receiver, amount) {
+    $scope.query = {};
+    $scope.query.from = $scope.account.name;
+    $scope.query.to = receiver;
+    $scope.query.amount = amount;
+
+    $http.post("/v1/transfer", $scope.query).then(function successCallback(response) {
+      $scope.account.balance = response.data.balance;
+      $scope.message.success = "Successful transfer to " + $scope.query.to;
+      $scope.message.failure = "";
+    }, function errorCallback(failure) {
+      $scope.message.failure = "Unsuccessful transfer to " + $scope.query.to;
+      $scope.message.success = "";
+    });
 
   }
 
