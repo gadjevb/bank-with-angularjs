@@ -1,10 +1,6 @@
 package com.clouway.bank.adapter.http;
 
-import com.clouway.bank.core.Session;
-import com.clouway.bank.core.SessionRepository;
-import com.clouway.bank.core.User;
-import com.clouway.bank.core.UserRepository;
-import com.clouway.bank.core.UserSecurity;
+import com.clouway.bank.core.*;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
@@ -29,7 +25,7 @@ public class UserSecurityImpl implements UserSecurity {
   }
 
   @Override
-  public Optional<User> currentUser() {
+  public User currentUser() {
     Cookie currentCookie = null;
     for (Cookie cookie : requestProvider.get().getCookies()) {
       if (cookie.getName().equals("SID")) {
@@ -37,13 +33,21 @@ public class UserSecurityImpl implements UserSecurity {
       }
     }
 
-    if(currentCookie != null) {
-      Optional<Session> session = sessionRepository.findSessionAvailableAt(currentCookie.getValue(), LocalDateTime.now());
-      if (session.isPresent()) {
-        return userRepository.findByUserName(session.get().getUsername());
-      }
+    if (currentCookie == null) {
+      throw new UserNotAuthorizedException();
     }
 
-    return Optional.empty();
+    Optional<Session> session = sessionRepository.findSessionAvailableAt(currentCookie.getValue(), LocalDateTime.now());
+    if (!session.isPresent()) {
+      throw new UserNotAuthorizedException();
+    }
+
+    Optional<User> possibleUser = userRepository.findByUserName(session.get().getUsername());
+
+    if (!possibleUser.isPresent()) {
+      throw new UserNotAuthorizedException();
+    }
+
+    return possibleUser.get();
   }
 }
