@@ -10,8 +10,6 @@ import com.google.sitebricks.headless.Request;
 import com.google.sitebricks.headless.Service;
 import com.google.sitebricks.http.Get;
 
-import java.util.Optional;
-
 /**
  * @author Borislav Gadjev <gadjevb@gmail.com>
  */
@@ -32,13 +30,10 @@ import java.util.Optional;
   public Reply<?> retrieveTransactionHistory(Request request) {
     String startingFromCursor = request.param("startingFromCursor");
     String isNext = request.param("isNext");
-    Optional<User> account = security.currentUser();
-    if (!account.isPresent()) {
-      return Reply.saying().unauthorized();
-    }
+    User account = security.currentUser();
 
     return Reply.with(
-            transactionRepository.retrieveTransactions(account.get().id, startingFromCursor, Boolean.valueOf(isNext), limit)
+            transactionRepository.retrieveTransactions(account.id, startingFromCursor, Boolean.valueOf(isNext), limit)
     ).as(Json.class);
   }
 }

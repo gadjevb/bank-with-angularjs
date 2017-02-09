@@ -9,8 +9,6 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.util.Optional;
-
 import static com.clouway.bank.matchers.SitebricksMatchers.isBadRequest;
 import static com.clouway.bank.matchers.SitebricksMatchers.isOk;
 import static org.junit.Assert.assertThat;
@@ -31,7 +29,7 @@ public class LogoutServiceTest {
   public void userTerminatesSession() {
     context.checking(new Expectations() {{
       oneOf(security).currentUser();
-      will(returnValue(Optional.of(new User("123", "Borislav", "123456"))));
+      will(returnValue(new User("123", "Borislav", "123456")));
 
       oneOf(sessionRepository).terminateUserSession(with(any(User.class)));
       will(returnValue(Boolean.TRUE));
@@ -45,7 +43,7 @@ public class LogoutServiceTest {
   public void failAtTerminatingSession() {
     context.checking(new Expectations() {{
       oneOf(security).currentUser();
-      will(returnValue(Optional.of(new User("123", "Borislav", "123456"))));
+      will(returnValue(new User("123", "Borislav", "123456")));
 
       oneOf(sessionRepository).terminateUserSession(with(any(User.class)));
       will(returnValue(Boolean.FALSE));

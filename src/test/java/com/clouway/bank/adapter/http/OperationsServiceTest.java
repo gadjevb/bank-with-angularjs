@@ -24,9 +24,8 @@ public class OperationsServiceTest {
 
   private AccountRepository accountRepository = context.mock(AccountRepository.class);
   private UserSecurity userSecurity = context.mock(UserSecurity.class);
-  private TransactionRepository transactionRepository = context.mock(TransactionRepository.class);
 
-  private OperationsService homePageService = new OperationsService(accountRepository, transactionRepository, userSecurity);
+  private OperationsService homePageService = new OperationsService(accountRepository, userSecurity);
 
 
   @Test
@@ -37,7 +36,7 @@ public class OperationsServiceTest {
 
     context.checking(new Expectations() {{
       oneOf(userSecurity).currentUser();
-      will(returnValue(Optional.of(new User("::any user id::", "", ""))));
+      will(returnValue(new User("::any user id::", "", "")));
       oneOf(accountRepository).findAccountByID("::any user id::");
       will(returnValue(possibleAccount));
       oneOf(accountRepository).update("cursor", 1.0, "deposit", "0");
@@ -55,7 +54,7 @@ public class OperationsServiceTest {
 
     context.checking(new Expectations() {{
       oneOf(userSecurity).currentUser();
-      will(returnValue(Optional.of(new User("::any user id::", "name", "password"))));
+      will(returnValue(new User("::any user id::", "name", "password")));
       oneOf(accountRepository).findAccountByID("::any user id::");
       will(returnValue(Optional.of(new Account("id", "A", 1d))));
       oneOf(accountRepository).update("id", 2.0, "deposit", "1");
@@ -73,7 +72,7 @@ public class OperationsServiceTest {
 
     context.checking(new Expectations() {{
       oneOf(userSecurity).currentUser();
-      will(returnValue(Optional.of(new User("::any user id::", "::any name::", "::any password::"))));
+      will(returnValue(new User("::any user id::", "::any name::", "::any password::")));
       oneOf(accountRepository).findAccountByID("::any user id::");
       will(returnValue(Optional.of(new Account("::any account id::", "A", 1d))));
       oneOf(accountRepository).update("::any account id::", 0.0, "withdraw", "1");
@@ -85,13 +84,13 @@ public class OperationsServiceTest {
   }
 
   @Test
-  public void insuficientFunds() throws Exception {
+  public void insufficientFunds() throws Exception {
     final Operation operation = new Operation("10", "withdraw");
     FakeRequest request = new FakeRequest(operation);
 
     context.checking(new Expectations() {{
       oneOf(userSecurity).currentUser();
-      will(returnValue(Optional.of(new User("::any user id::", "::any name::", "::any password::"))));
+      will(returnValue(new User("::any user id::", "::any name::", "::any password::")));
       oneOf(accountRepository).findAccountByID("::any user id::");
       will(returnValue(Optional.of(new Account("::any account id::", "A", 5d))));
     }});

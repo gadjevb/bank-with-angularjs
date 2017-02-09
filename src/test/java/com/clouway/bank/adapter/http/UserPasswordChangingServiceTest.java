@@ -11,8 +11,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
-import java.util.Optional;
-
 import static com.clouway.bank.matchers.SitebricksMatchers.isBadRequest;
 import static com.clouway.bank.matchers.SitebricksMatchers.isOk;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -38,7 +36,7 @@ public class UserPasswordChangingServiceTest {
 
     context.checking(new Expectations() {{
       oneOf(security).currentUser();
-      will(returnValue(Optional.of(new User("123", "John", BCrypt.hashpw(oldPassword, BCrypt.gensalt())))));
+      will(returnValue(new User("123", "John", BCrypt.hashpw(oldPassword, BCrypt.gensalt()))));
 
       oneOf(accountRepository).updatePassword(with(any(String.class)), with(any(String.class)));
     }});
@@ -57,7 +55,7 @@ public class UserPasswordChangingServiceTest {
 
     context.checking(new Expectations() {{
       oneOf(security).currentUser();
-      will(returnValue(Optional.of(new User("123", "John", BCrypt.hashpw("oldPassword", BCrypt.gensalt())))));
+      will(returnValue(new User("123", "John", BCrypt.hashpw("oldPassword", BCrypt.gensalt()))));
     }});
 
     Reply<?> reply = service.changePassword(request);

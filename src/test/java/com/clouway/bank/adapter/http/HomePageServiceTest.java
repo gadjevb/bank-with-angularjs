@@ -1,9 +1,6 @@
 package com.clouway.bank.adapter.http;
 
-import com.clouway.bank.core.Account;
-import com.clouway.bank.core.AccountRepository;
-import com.clouway.bank.core.User;
-import com.clouway.bank.core.UserSecurity;
+import com.clouway.bank.core.*;
 import com.google.sitebricks.headless.Reply;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -36,7 +33,7 @@ public class HomePageServiceTest {
 
     context.checking(new Expectations() {{
       oneOf(userSecurity).currentUser();
-      will(returnValue(Optional.of(new User("id", "name", "password"))));
+      will(returnValue(new User("id", "name", "password")));
       oneOf(userRepository).findAccountByID("id");
       will(returnValue(possibleAccount));
     }});
@@ -48,11 +45,11 @@ public class HomePageServiceTest {
     assertThat(reply, sameAs(expected));
   }
 
-  @Test
+  @Test(expected = UserNotAuthorizedException.class)
   public void notExistignAccount() {
     context.checking(new Expectations() {{
       oneOf(userSecurity).currentUser();
-      will(returnValue(Optional.empty()));
+      will(throwException(new UserNotAuthorizedException()));
     }});
 
     Reply<?> reply = homePageService.getAccount();

@@ -46,7 +46,7 @@ public class TransactionHistoryServiceTest {
 
     context.checking(new Expectations() {{
       oneOf(security).currentUser();
-      will(returnValue(Optional.of(new User("123", "testUser", "pass"))));
+      will(returnValue(new User("123", "testUser", "pass")));
 
       oneOf(transactionRepository).retrieveTransactions("123", startingFromCursor, isNext, limit);
       will(returnValue(ImmutableList.of(new Transaction(startingFromCursor, date, "123", "deposit", 100d),

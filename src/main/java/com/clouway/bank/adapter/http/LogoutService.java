@@ -9,8 +9,6 @@ import com.google.sitebricks.headless.Reply;
 import com.google.sitebricks.headless.Service;
 import com.google.sitebricks.http.Get;
 
-import java.util.Optional;
-
 /**
  * @author Borislav Gadjev <gadjevb@gmail.com>
  */
@@ -28,20 +26,14 @@ public class LogoutService {
 
     @Get
     public Reply<?> logout() {
-      Optional<User> possibleUser = security.currentUser();
-      Boolean status;
+      User user = security.currentUser();
+      Boolean status = sessionRepository.terminateUserSession(user);
 
-        if (possibleUser.isPresent()) {
-          status = sessionRepository.terminateUserSession(possibleUser.get());
-        } else {
-          return Reply.saying().ok();
-        }
-
-        if (status) {
-            return Reply.saying().ok();
-        } else {
-            return Reply.saying().status(400);
-        }
+      if (status) {
+        return Reply.saying().ok();
+      } else {
+        return Reply.saying().status(400);
+      }
     }
 
 }

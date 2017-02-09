@@ -1,9 +1,6 @@
 package com.clouway.bank.adapter.http;
 
-import com.clouway.bank.core.Session;
-import com.clouway.bank.core.SessionRepository;
-import com.clouway.bank.core.User;
-import com.clouway.bank.core.UserRepository;
+import com.clouway.bank.core.*;
 import com.google.inject.util.Providers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -43,12 +40,12 @@ public class UserSecurityImplTest {
       will(returnValue(Optional.of(user)));
     }});
 
-    User actual = userSecurity.currentUser().get();
+    User actual = userSecurity.currentUser();
 
     assertThat(actual,is(user));
   }
 
-  @Test
+  @Test(expected = UserNotAuthorizedException.class)
   public void noPresentSession() throws Exception {
     request.addCookie(new Cookie("SID","id"));
 
@@ -57,11 +54,11 @@ public class UserSecurityImplTest {
       will(returnValue(Optional.empty()));
     }});
 
-    assertFalse(userSecurity.currentUser().isPresent());
+    userSecurity.currentUser();
   }
 
-  @Test
+  @Test(expected = UserNotAuthorizedException.class)
   public void missingCookie() throws Exception {
-    assertFalse(userSecurity.currentUser().isPresent());
+    userSecurity.currentUser();
   }
 }

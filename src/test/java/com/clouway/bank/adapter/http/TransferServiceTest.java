@@ -32,7 +32,7 @@ public class TransferServiceTest {
   public void validCurrentUser() {
     context.checking(new Expectations() {{
       oneOf(security).currentUser();
-      will(returnValue(Optional.of(new User("123", "testUser", "pass"))));
+      will(returnValue(new User("123", "testUser", "pass")));
 
       oneOf(accountRepository).findAccountByID("123");
       will(returnValue(Optional.of(new Account("123", "testUser", 40d))));
@@ -43,11 +43,11 @@ public class TransferServiceTest {
     assertThat(actual, isOk());
   }
 
-  @Test
+  @Test (expected = UserNotAuthorizedException.class)
   public void invalidCurrentUser() {
     context.checking(new Expectations() {{
       oneOf(security).currentUser();
-      will(returnValue(Optional.empty()));
+      will(throwException(new UserNotAuthorizedException()));
     }});
 
     Reply<?> actual = service.returnCurrentUser();

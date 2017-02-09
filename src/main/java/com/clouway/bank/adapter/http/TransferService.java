@@ -34,14 +34,10 @@ public class TransferService {
 
   @Get
   public Reply<?> returnCurrentUser() {
-    Optional<User> possibleUser = security.currentUser();
+    User user = security.currentUser();
     Optional<Account> possibleAccount;
 
-    if (possibleUser.isPresent()) {
-      possibleAccount = accountRepository.findAccountByID(possibleUser.get().id);
-    } else {
-      return Reply.saying().unauthorized();
-    }
+    possibleAccount = accountRepository.findAccountByID(user.id);
 
     if (possibleAccount.isPresent()) {
       return Reply.with(
