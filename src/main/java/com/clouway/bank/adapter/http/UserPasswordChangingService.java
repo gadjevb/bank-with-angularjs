@@ -11,8 +11,6 @@ import com.google.sitebricks.headless.Service;
 import com.google.sitebricks.http.Post;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
-import java.util.Optional;
-
 /**
  * @author Borislav Gadjev <gadjevb@gmail.com>
  */
@@ -31,12 +29,12 @@ public class UserPasswordChangingService {
   @Post
   public Reply<?> changePassword(Request request) {
     Query query = request.read(Query.class).as(Json.class);
-    Optional<User> possibleUser = security.currentUser();
+    User user = security.currentUser();
 
-    if (possibleUser.isPresent() && BCrypt.checkpw(query.oldPass, possibleUser.get().password)) {
+    if (BCrypt.checkpw(query.oldPass, user.password)) {
 
       String newHashedPassword = BCrypt.hashpw(query.newPass, BCrypt.gensalt());
-      accountRepository.updatePassword(possibleUser.get().id, newHashedPassword);
+      accountRepository.updatePassword(user.id, newHashedPassword);
 
       return Reply.saying().ok();
     } else {

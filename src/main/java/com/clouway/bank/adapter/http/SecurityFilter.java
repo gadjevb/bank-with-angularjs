@@ -2,6 +2,8 @@ package com.clouway.bank.adapter.http;
 
 import com.clouway.bank.core.Session;
 import com.clouway.bank.core.SessionRepository;
+import com.clouway.bank.core.UserNotAuthorizedException;
+import com.google.common.base.Throwables;
 import com.google.inject.Singleton;
 
 import javax.servlet.Filter;
@@ -42,7 +44,15 @@ public class SecurityFilter implements Filter {
     String uri = req.getRequestURI();
     Cookie[] cookies = req.getCookies();
     if (hasValidCookie(cookies) || uri.equals("/login") || uri.equals("/register")) {
-      filterChain.doFilter(req, resp);
+      try {
+        filterChain.doFilter(req, resp);
+      } catch (Exception e) {
+        if (Throwables.getRootCause(e) instanceof UserNotAuthorizedException) {
+          resp.setStatus(401);
+        }
+
+
+      }
       return;
     } if (!hasValidCookie(cookies) && (uri.startsWith("/v1/"))) {
       resp.setStatus(401);

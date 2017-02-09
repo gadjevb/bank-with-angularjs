@@ -17,13 +17,11 @@ import java.util.Optional;
 @At("/v1/operation")
 public class OperationsService {
   private final AccountRepository accountRepository;
-  private final TransactionRepository transactionRepository;
   private UserSecurity userSecurity;
 
   @Inject
-  public OperationsService(AccountRepository accountRepository, TransactionRepository transactionRepository, UserSecurity userSecurity) {
+  public OperationsService(AccountRepository accountRepository, UserSecurity userSecurity) {
     this.accountRepository = accountRepository;
-    this.transactionRepository = transactionRepository;
     this.userSecurity = userSecurity;
   }
 
@@ -31,12 +29,9 @@ public class OperationsService {
   public Reply<?> issueOperation(Request request) {
     Operation operation = request.read(Operation.class).as(Json.class);
 
-    Optional<User> possibleUser = userSecurity.currentUser();
-    if (!possibleUser.isPresent()) {
-      return Reply.saying().unauthorized();
-    }
+    User user = userSecurity.currentUser();
 
-    Optional<Account> possibleAccount = accountRepository.findAccountByID(possibleUser.get().id);
+    Optional<Account> possibleAccount = accountRepository.findAccountByID(user.id);
 
     Account account = possibleAccount.get();
     Double requestedAmount = Double.valueOf(operation.amount);

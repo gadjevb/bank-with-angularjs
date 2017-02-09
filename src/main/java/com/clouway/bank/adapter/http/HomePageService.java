@@ -29,13 +29,9 @@ public class HomePageService {
 
   @Get
   public Reply<?> getAccount() {
-    Optional<User> possibleUser = userSecurity.currentUser();
+    User user = userSecurity.currentUser();
 
-    if (!possibleUser.isPresent()) {
-      return Reply.saying().unauthorized();
-    }
-
-    Optional<Account> possibleAccount = accountRepository.findAccountByID(possibleUser.get().id);
+    Optional<Account> possibleAccount = accountRepository.findAccountByID(user.id);
     return Reply.with(possibleAccount.get()).as(Json.class);
   }
 }

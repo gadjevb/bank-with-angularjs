@@ -2,6 +2,7 @@ package com.clouway.bank.adapter.http;
 
 import com.clouway.bank.core.Session;
 import com.clouway.bank.core.SessionRepository;
+import com.clouway.bank.core.UserNotAuthorizedException;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.fail;
 
 /**
  * @author Martin Milev <martinmariusmilev@gmail.com>
@@ -49,6 +51,26 @@ public class SecurityFilterTest {
     }});
 
     filter.doFilter(request, response, chain);
+  }
+
+  @Test
+  public void userWasNotAuthorizedWasThrownByBackend() throws Exception {
+    SecurityFilter filter = new SecurityFilter(sessionRepository);
+    request.addCookie(new Cookie("SID", ":: any id ::"));
+    request.setRequestURI("/");
+
+    context.checking(new Expectations() {{
+      oneOf(sessionRepository).findSessionAvailableAt(with(any(String.class)), with(any(LocalDateTime.class)));
+      will(returnValue(Optional.of(new Session(":: any id ::", 1, "::any username::"))));
+      oneOf(chain).doFilter(request, response);
+      will(throwException(new UserNotAuthorizedException()));
+
+
+    }});
+
+    filter.doFilter(request, response, chain);
+
+    assertThat(response.getStatus(), is(401));
   }
 
   @Test
